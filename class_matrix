@@ -124,7 +124,7 @@ private:
 
 public:
 	
-	Matrix () {cout << "Hello world";} 
+	Matrix () { } 
 
 	// конструктор
 	Matrix ( int n )
@@ -256,57 +256,10 @@ public:
 
 int main()
 {
-	/*
-	int n, k;
-	cin >> n;
-	cin >> k;
-
-	int *diag = new int[n]; 
-	for (int i=0;i<n;i++)
-		diag[i] = k;
-
-	Matrix A(n);
-	Matrix B(n);
-	Matrix C(n);
-	Matrix D(n);
-	Matrix K(n,diag);
-	Matrix result(n);
-
-	for (int v=0;v<4;v++)
-	{
-		for (size_t i=0;i<n;i++)
-		{
-			for (size_t j=0;j<n;j++)
-				cin >> A[i][j];
-		}
-		for (size_t i=0;i<n;i++)
-		{
-			for (size_t j=0;j<n;j++)
-				cin >> B[i][j];
-		}
-		for (size_t i=0;i<n;i++)
-		{
-			for (size_t j=0;j<n;j++)
-				cin >> C[i][j];
-		}
-		for (size_t i=0;i<n;i++)
-		{
-			for (size_t j=0;j<n;j++)
-				cin >> D[i][j];
-		}
-
-	}
-	
-
-	result = (A + (B*C.transpose()) + K)*D.transpose();
-	result.print();
-	*/
-
-	Matrix A(5);
-	Matrix B(5);
+	Matrix A(3);
+	Matrix B(3);
 	Matrix C = A*B;
-
-	B = A - B;
-
+	C.print();
+	
 	return 0;
 }
