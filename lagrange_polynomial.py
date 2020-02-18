@@ -25,9 +25,6 @@ def plot(data):
 	x = [point[0] for point in data]
 	y = [point[1] for point in data]
 
-	x.sort()
-	y.sort()
-
 	plt.plot(x,y)
 	plt.show()
 
