@@ -1,6 +1,6 @@
-
 /*
-classes of Vector and Matrix
+classes Vector and Matrix
+constantin werner
 */
 
 #include <iostream>
@@ -12,56 +12,62 @@ using namespace std;
 class Vector
 {
 private:
+	
+	int *data;
+	int size;
 
-	void rawClean() { delete[] this->data; }
-	void rawCopy(const Vector& that) 
+	friend class Matrix;
+
+  void clean()
+  {
+    delete[] this->data;
+  }
+
+	void copy(const Vector& that) 
 	{
 		this->size = that.size; 
 		this->data = new int[this->size];
 	}
-public:
-	int *data;
-	int size;
 
-	// конструктор 1
-	Vector ( ) : data(nullptr), size(0) {};
+public:
+
+	// конструктор по-умолчанию, создает вектор размерности ноль
+	Vector()
+	{
+	    size = 0;
+	    data = new int[size];
+	}
+	
 
 	// конструктор 2
-	Vector ( int size )
+	Vector(int size)
 	{
 		this->size = size;
-		this->data = new int[size];
+		data = new int[size];
 	}
 
-	// конструктор 3
-	Vector ( int size, int arr[] )
-	{
-		this->size = size;
-		this->data = new int[size];
-		for (size_t i=0;i<this->size;i++)
-			this->data[i] = arr[i];
+
+	// деструктор
+	~Vector()
+	{ 
+	    // динамически удаляем массив, который был выделен ранее
+	    this->clean();
 	}
 
 
 	// конструктор копирования
-	Vector (const Vector& that)
+	Vector(const Vector& that) 
 	{
-		this->size = that.size;
-		this->data = new int[this->size];
-		for (size_t i=0;i<this->size;i++)
-			this->data[i] = that.data[i];
+		this->copy(that);
 	}
 
-	// деструктор
-	~Vector() { delete[] this->data; }
-
 	// оператор присваивания
-	Vector& operator= (const Vector& that)
+	Vector& operator=(const Vector& that)
 	{
 		if (this != &that)
 		{
-			this->rawClean();
-			this->rawCopy(that);
+			this->clean();
+			this->copy(that);
 		}
 		return *this;
 	}
@@ -69,32 +75,31 @@ public:
 	// оператор для чтения
 	int operator[](int index) const 
 	{ 
-		if (index >= this->size || index < 0)
+		if (index >= size || index < 0)
+		{
 			throw out_of_range("index out of range");
-		return this->data[index]; 
+		}
+		return data[index]; 
 	}
+
 	// оператор для записи
 	int& operator[](int index) 
 	{ 
 		if (index >= size || index < 0)
+		{
 			throw out_of_range("index out of range");
-		return this->data[index]; 
+		}
+		return data[index]; 
 	}
 
-	// оператор сложения
-	Vector operator+(const Vector& that) const
-	{
-		Vector result(this->size);
-		for (size_t i=0;i<this->size;i++)
-			result[i] = (*this)[i] + that[i];
-		return result;
-	}
-
-	void print()
-	{
-		for (size_t i=0;i<this->size;i++)
-			cout << this->data[i] << ' ';
-	}
+	friend ostream &operator<<(ostream &output, const Vector &v)
+	{ 
+    for (int i = 0; i < v.size; i++)
+		{
+			output << v.data[i] << ' ';
+		}
+        return output;            
+    }
 
 };
 
@@ -107,88 +112,87 @@ private:
 
 	void clean()
 	{
-		delete[] this->vectors;
+		delete[] vectors;
 	}
-	void copy(const Matrix& that)
+
+  void copy(const Matrix& that)
 	{
 		this->n = that.n;
 		this->vectors = new Vector[this->n];
 		for (int i=0;i<n;i++)
 		{
-			this->vectors[i].size = n;
-			this->vectors[i].data = new int[n];
-			for (int j=0;j<n;j++)
-				this->vectors[i][j] = that.vectors[i][j];
+			this->vectors[i] = that.vectors[i];
 		}
 	}
 
 public:
 	
-	Matrix () { } 
+	// конструктор по-умолничаю, создает матрицу размерности ноль.
+	Matrix() 
+	{
+		n = 0;
+		vectors = new Vector[n];
+	}
 
-	// конструктор
-	Matrix ( int n )
+	// конструктор; создает квадратную единичную матрицу размера n
+	Matrix(int n)
 	{
 		this->n = n;
-		this->vectors = new Vector[n];
-		for (size_t i=0;i<this->n;i++)
+		vectors = new Vector[n];
+		for (int i = 0; i < this->n; i++)
 		{
-			this->vectors[i].size = n;
-			this->vectors[i].data = new int[n];
-			for (int j=0;j<n;j++)
-				this->vectors[i][j] = rand()%10;
+			vectors[i].size = n;
+			vectors[i].data = new int[n]();
+			vectors[i][i] = 1;
 		}
 	}
 
+
 	// конструктор диагональной матрицы
-	Matrix ( int n, int*diag )
+	Matrix(int n, int*diag)
 	{
 		this->n = n;
-		this->vectors = new Vector[n];
-		for (size_t i=0;i<this->n;i++)
+		vectors = new Vector[n];
+		for (int i = 0; i < this->n; i++)
 		{
-			this->vectors[i].size = n;
-			this->vectors[i].data = new int[n];
-			for (int j=0;j<n;j++)
+			vectors[i].size = n;
+			vectors[i].data = new int[n];
+			for (int j = 0; j < n; j++)
 			{
 				if (i == j)
-					this->vectors[i][j] = diag[i];
+				{
+					vectors[i][j] = diag[i];
+				}
 				else
-					this->vectors[i][j] = 0;
+				{
+					vectors[i][j] = 0;
+				}
 			}
 		}
 	}
 
-	// конструктор копирования
+	// конструктор копий
 	Matrix(const Matrix& that)
 	{
-		this->n = that.n;
-		this->vectors = new Vector[this->n];
-		for (size_t i=0;i<this->n;i++)
-		{
-			this->vectors[i].size = n;
-			this->vectors[i].data = new int[n];
-			for (int j=0;j<n;j++)
-				this->vectors[i][j] = that.vectors[i][j];
-		}
+		this->copy(that);
 	}
 
 
-	void print()
+	// деструктор
+	~Matrix()
 	{
-		for (size_t i=0;i<this->n;i++)
-		{
-			this->vectors[i].print();
-			cout << endl;
-		}
+	    this->clean();
 	}
 
 
-	Vector& operator[](size_t index) 
+	// взятие i-ой строки
+	Vector& operator[](int i) 
 	{ 
-		if (index >= n || index < 0)
+		if (i >= n || i < 0)
+		{
 			throw out_of_range("index out of range");
-		return this->vectors[index]; 
+		}
+		return vectors[i]; 
 	}
 
 
@@ -208,58 +212,155 @@ public:
 	Matrix operator+(const Matrix& that) const
 	{
 		if (that.n != this->n)
-			throw runtime_error("dimensions of matrices are not equel");
-		Matrix result(this->n);
-		for (size_t i=0;i<this->n;i++)
 		{
-			for (size_t j=0;j<this->n;j++)
+			throw runtime_error("dimensions of matrices are not equel");
+		}
+		Matrix result(this->n);
+		for (int i = 0; i < this->n; i++)
+		{
+			for (int j = 0; j<this->n; j++)
+			{
 				result.vectors[i][j] = this->vectors[i][j] + that.vectors[i][j];
+			}
 		}
 		return result;
 	}
+
+
+	// оператор вычитания
+	Matrix operator-(const Matrix& that) const
+	{
+		if (that.n != this->n)
+		{
+			throw runtime_error("dimensions of matrices are not equel");
+		}
+		Matrix result(this->n);
+		for (int i = 0; i < this->n; i++)
+		{
+			for (int j = 0; j<this->n; j++)
+			{
+				result.vectors[i][j] = this->vectors[i][j] - that.vectors[i][j];
+			}
+		}
+		return result;
+	}
+
+
+	// оператор равенства
+	bool operator==(const Matrix& that) const
+	{
+		if (that.n != this->n)
+			return false;
+		for (int i = 0; i < this->n; i++)
+		{
+			for (int j = 0; j<this->n; j++)
+			{
+				if (this->vectors[i][j] != that.vectors[i][j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+
+	// оператор неравенства
+	bool operator!=(const Matrix& that) const
+	{
+		return !(*this == that);
+	}
+
 
 	// оператор умножения
 	Matrix operator*(const Matrix& that) const
 	{
 		if (that.n != this->n)
-			throw runtime_error("dimensions of matrices are not equel");
-		Matrix result(this->n);
-		for (size_t i=0;i<this->n;i++)
 		{
-			for (size_t j=0;j<this->n;j++)
+			throw runtime_error("dimensions of matrices are not equel");
+		}
+		Matrix result(this->n);
+		for (int i = 0; i < this->n; i++)
+		{
+			for (int j = 0; j<this->n; j++)
 			{
 				result.vectors[i].data[j] = 0;
-				for (size_t k=0;k<this->n;k++)
+				for (int k = 0; k < this->n; k++)
+				{
 					result.vectors[i][j] += this->vectors[i][k]*that.vectors[k][j];
+				}
 			}
 		}
 		return result;
 	}
 
+	
 	//оператор транспонирования
-	Matrix transpose()
+	Matrix operator!()
 	{
-		Matrix result(this->n);
-		for (size_t i=0;i<this->n;i++)
+		Matrix result(n);
+		for (int i = 0; i < n; i++)
 		{
-			for (size_t j=0;j<this->n;j++)
+			for (int j = 0; j < n; j++)
 			{
-				result.vectors[i].data[j] = this->vectors[j].data[i]; 
+				result.vectors[i].data[j] = vectors[j].data[i]; 
 			}
 		}
 		return result;
 	}
 
-};
 
+	//оператор взятия минора
+	Matrix operator()(const int i, const int j)
+	{
+		if (i >= n || i < 0)
+		{
+			throw out_of_range("the first index is out of range");
+		}
+		if (j >= n || j < 0)
+		{
+			throw out_of_range("the second index is out of range");
+		}
+		
+		Matrix result(n - 1);
+
+		for (int k = 0; k<n; k++)
+		{
+			for (int l = 0; l<n; l++)
+			{
+				if (k != i && l != j)
+					result.vectors[i].data[j] = vectors[j].data[i]; 
+			}
+		}
+		return result;
+	}
+
+
+	friend ostream &operator<<(ostream &output, const Matrix &M ) 
+	{ 
+        for (int i = 0; i < M.n; i++)
+		{
+			output << M.vectors[i] << endl;
+		}
+        return output;            
+    }
+
+
+	friend istream& operator>>(istream& in, Matrix &M)
+	{
+	    for (int j = 0; j < M.n; j++)
+	  	{
+	  		for (int k = 0; k < M.n; k++)
+	  		{
+		  		in >> M.vectors[j][k];
+	  		}
+	  	}
+	  	return in;
+	}
+};
 
 
 int main()
 {
-	Matrix A(3);
-	Matrix B(3);
-	Matrix C = A*B;
-	C.print();
-	
 	return 0;
 }
